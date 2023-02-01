@@ -66,7 +66,7 @@
 
 # COMMAND ----------
 
-dbutils.fs.ls('/FileStore/shared_uploads/anmuzychuk@gmail.com')
+dbutils.fs.ls('/FileStore/shared_uploads/')
 
 # COMMAND ----------
 
@@ -78,13 +78,16 @@ dbutils.fs.ls('/FileStore/shared_uploads/anmuzychuk@gmail.com')
 
 # COMMAND ----------
 
-# Load sample data as spark dataframe
-path = '/FileStore/shared_uploads/anmuzychuk@gmail.com/CDNOW_sample.txt'
+# Set path to data 
+
+path = '{specify path to sample data}'
 
 # customer's ID, the date of the transaction, the number of CDs purchased, and the dollar value of the transaction.
 cdnow_sample = spark.read.format('csv').load(path, sep=' ')
 
 # select and fix column types.
+# Note: there is a difference between data in sampple and full data set.
+# below script works for sample data. to use it for full dataset some tweaks might be necessary.
 orders = cdnow_sample.selectExpr('CAST(_c2 as LONG) as customer_id', 
                                  'TO_DATE(_c3, "yyyyMMdd") as transaction_date', 
                                  'CAST(_c8 as DECIMAL(4, 2)) as amount')
