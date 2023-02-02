@@ -93,6 +93,12 @@ orders = cdnow_sample.selectExpr('CAST(_c2 as LONG) as customer_id',
                                  'CAST(_c8 as DECIMAL(4, 2)) as amount')
 
 
+
+# Uncoment if use CDNOW master
+# orders = cdnow_df.selectExpr('CAST(_c1 as LONG) as customer_id', 
+#                          'TO_DATE(_c2, "yyyyMMdd") as transaction_date', 
+#                          'CAST(_c7 as DECIMAL(4, 2)) as amount')
+
 orders.printSchema()
 
 # COMMAND ----------
@@ -384,18 +390,12 @@ display(
     .sort(f.desc('total_amount'))   
 )
 
-# COMMAND ----------
+# MAGIC COMMAND ----------
 
-# MAGIC %md ## Summary 
-# MAGIC 
-# MAGIC - RFM concenpt is a relatively simple but yet quite a poverful tool, especially in time to execute metters.
-# MAGIC 
-# MAGIC ## Where to move from there
-# MAGIC 
-# MAGIC  - [Databricks](https://docs.databricks.com/introduction/index.html) has a lot to offer for data engineers, data scientists and data analysts. 
-# MAGIC  - Data transformation with pyspark, spark SQL
-# MAGIC  - Customer life time value: lecture by Peter Fader, [New perspective on CLV](https://www.youtube.com/watch?v=guj2gVEEx4s)
-# MAGIC  - Explore RFM modifications 
-# MAGIC  - Improve segmentation model by choosing optimal? number of segments using Silhouette score  
-# MAGIC  - Investigate Databricks MLFlow to manage ML lifecycle
-# MAGIC  
+# MAGIC %md ## Some quesitions to consider ....
+
+# MAGIC 1. Plot total transaction count time series with your tool of choise 
+# MAGIC 2. It seems like March 23-28 what a time moment when customer transactions went down. How many loyal customers retains? Note: there is a need to reserach and define which customer to call loyal. 
+# MAGIC 3. How to visualise churned cuatomers? (churned - or sometimes called `dead` customers - those who stopped # MAGIC purchasing cd.)
+# MAGIC 4. Use Silhuette method to identify optimal number of clusters 
+# MAGIC COMMAND ----------
