@@ -63,6 +63,9 @@
 # MAGIC %md
 # MAGIC Databricks has a number of built in datasets to experiment with. To list available run <code>dbutils.fs.ls('dbfs:/databricks-datasets')</code> in a new cell.<br> 
 # MAGIC Or, we can manually upload dataset to databricks DBFS: `File` > `Upload data to DBFS`. By default the dataset is saved to /FileStore/shared_uploads/{email}
+# MAGIC 
+# MAGIC 
+# MAGIC As an option, use Browse Files on `Data import` block on welcome page - this will create a table.
 
 # COMMAND ----------
 
@@ -78,26 +81,18 @@ dbutils.fs.ls('/FileStore/shared_uploads/')
 
 # COMMAND ----------
 
-# Set path to data 
-
+# Load sample data as spark dataframe
 path = '{specify path to sample data}'
 
 # customer's ID, the date of the transaction, the number of CDs purchased, and the dollar value of the transaction.
 cdnow_sample = spark.read.format('csv').load(path, sep=' ')
 
 # select and fix column types.
-# Note: there is a difference between data in sampple and full data set.
-# below script works for sample data. to use it for full dataset some tweaks might be necessary.
+# Make sure to change below if you are using master data and not sample.
 orders = cdnow_sample.selectExpr('CAST(_c2 as LONG) as customer_id', 
                                  'TO_DATE(_c3, "yyyyMMdd") as transaction_date', 
                                  'CAST(_c8 as DECIMAL(4, 2)) as amount')
 
-
-
-# Uncoment if use CDNOW master
-# orders = cdnow_df.selectExpr('CAST(_c1 as LONG) as customer_id', 
-#                          'TO_DATE(_c2, "yyyyMMdd") as transaction_date', 
-#                          'CAST(_c7 as DECIMAL(4, 2)) as amount')
 
 orders.printSchema()
 
@@ -215,15 +210,18 @@ display(
 
 # COMMAND ----------
 
-
-
-# COMMAND ----------
-
 # MAGIC %md ## RFM Segmentation
 
 # COMMAND ----------
 
 # MAGIC %md ### Calculate RFM summary
+# MAGIC 
+# MAGIC Need to define period. We will use 'day' in the example. But it can be monthly or weekly and depends on business model. 
+# MAGIC 
+# MAGIC 
+# MAGIC     [R] = Number of periods since last visit
+# MAGIC     [F] = # of visits - 1 
+# MAGIC     [M] = Average amount spent
 
 # COMMAND ----------
 
@@ -383,6 +381,7 @@ display(rmf_clusters
 
 # COMMAND ----------
 
+# DBTITLE 1,Finally: our golden customers! 
 display(
     rmf_clusters
     .filter(f.col('cluster') == 2)
@@ -390,12 +389,27 @@ display(
     .sort(f.desc('total_amount'))   
 )
 
-# MAGIC COMMAND ----------
+# COMMAND ----------
 
-# MAGIC %md ## Some quesitions to consider ....
-
+# MAGIC %md ## Summary 
+# MAGIC 
+# MAGIC - RFM concenpt is a relatively simple but yet quite a poverful tool, especially in time to execute metters.
+# MAGIC - We explore only sample. Thus the inference should be done with care. 
+# MAGIC 
+# MAGIC ## Where to move from there
+# MAGIC 
+# MAGIC  - [Databricks](https://docs.databricks.com/introduction/index.html) has a lot to offer for data engineers, data scientists and data analysts. 
+# MAGIC  - Data transformation with pyspark, spark SQL
+# MAGIC  - Customer life time value: lecture by Peter Fader, [New perspective on CLV](https://www.youtube.com/watch?v=guj2gVEEx4s)
+# MAGIC  - Explore RFM modifications 
+# MAGIC  - Improve segmentation model by choosing optimal? number of segments using Silhouette score  
+# MAGIC  - Investigate Databricks MLFlow to manage ML lifecycle
+# MAGIC  
+# MAGIC  
+# MAGIC ## Some quesitions to consider ....
+# MAGIC 0. Reproduce the analysis on master dataset. And all out assumptions that we learned on sample data hold there as well?
 # MAGIC 1. Plot total transaction count time series with your tool of choise 
 # MAGIC 2. It seems like March 23-28 what a time moment when customer transactions went down. How many loyal customers retains? Note: there is a need to reserach and define which customer to call loyal. 
-# MAGIC 3. How to visualise churned cuatomers? (churned - or sometimes called `dead` customers - those who stopped # MAGIC purchasing cd.)
+# MAGIC 3. How to visualise churned cuatomers? (churned - or sometimes called `dead` customers - those who stopped purchasing cd.)
 # MAGIC 4. Use Silhuette method to identify optimal number of clusters 
-# MAGIC COMMAND ----------
+# MAGIC  
